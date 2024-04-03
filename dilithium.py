@@ -77,6 +77,8 @@ class Dilithium:
         
         self.drbg = None
         self.random_bytes = os.urandom
+
+        self.leaked_data = []
     
     """
     The following two methods allow us to use deterministic
@@ -476,6 +478,7 @@ class Dilithium:
             if self._sum_hint(h) > self.omega:
                 continue
             
+            self.leaked_data.append((c, z, y, s1))
             return self._pack_sig(c_tilde, z, h)
         
     def verify(self, pk_bytes, m, sig_bytes):
