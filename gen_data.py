@@ -5,7 +5,7 @@ from random import Random
 # prints the coefficients as 256-element arrays
 def print_results(c, z, y, s1):
     print("c=")
-    print(c.from_ntt().coeffs)
+    print(c.copy_from_ntt().coeffs)
     print("z=")
     for row in z:
         print(row[0].coeffs)
