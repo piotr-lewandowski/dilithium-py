@@ -182,8 +182,6 @@ class Dilithium:
                 if j <= i:
                     return j
 
-        from ipdb import set_trace
-        set_trace()
         # Initialise the XOF
         Shake256.absorb(seed)
 
@@ -201,7 +199,6 @@ class Dilithium:
             coeffs[i] = coeffs[j]
             coeffs[j] = 1 - 2*(sign_int & 1)
             sign_int >>= 1
-        set_trace()
 
         return self.R(coeffs, is_ntt=is_ntt)
 
@@ -469,8 +466,6 @@ class Dilithium:
 
             # Store c in NTT form
             c.to_ntt()
-            from ipdb import set_trace
-            set_trace()
 
             z = y + s1.scale(c).from_ntt()
             if z.check_norm_bound(self.gamma_1 - self.beta):
