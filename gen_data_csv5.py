@@ -1,14 +1,15 @@
 from time import time
 from dilithium import Dilithium2
 from random import Random
+from sk import sk
+from pk import pk
 
 # c is a polynomial, z and y are 4x1 matrices of polynomials
 # prints the coefficients as 256-element arrays
 
 random = Random()
-random.seed("1337")
 dilithium = Dilithium2
-pk, sk = dilithium.keygen()
+# pk, sk = dilithium.keygen()
 
 with open("wynik5.csv", "a") as csv_file:
     m = 0
