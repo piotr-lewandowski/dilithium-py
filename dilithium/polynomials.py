@@ -1,6 +1,6 @@
 import random
 from copy import deepcopy
-from utils import *
+from dilithium.utils import *
 
 class PolynomialRing:
     """

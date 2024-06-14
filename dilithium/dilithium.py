@@ -1,13 +1,13 @@
 import os
 
-from polynomials import *
-from modules import *
-from shake_wrapper import Shake128, Shake256
-from utils import *
-from ntt_helper import NTTHelperDilithium
+from dilithium.polynomials import *
+from dilithium.modules import *
+from dilithium.shake_wrapper import Shake128, Shake256
+from dilithium.utils import *
+from dilithium.ntt_helper import NTTHelperDilithium
 
 try:
-    from aes256_ctr_drbg import AES256_CTR_DRBG
+    from dilithium.aes256_ctr_drbg import AES256_CTR_DRBG
 except ImportError as e:
     print("Error importing AES256 CTR DRBG. Have you tried installing requirements?")
     print(f"ImportError: {e}\n")
