@@ -109,7 +109,7 @@ def run(name: str):
         ]
         )
 
-    missing = find_missing("data/missing.csv", [0, 83, 84, 106, 115, 121, 123, 192, 240])
+    missing = find_missing("data/missing.csv", [0, 83, 84, 123])
     everything = find_missing("data/everything.csv", list(range(256)))
 
     max_index = find_index("data/everything.csv")
