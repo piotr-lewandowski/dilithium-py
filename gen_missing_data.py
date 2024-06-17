@@ -32,7 +32,9 @@ def run_rounds(rounds, logger, random, dilithium):
         dilithium.sign(sk, msg)
     end = time()
     logger.info(f"{rounds} rounds completed in {end - start} s")
-    return dilithium.leaked_data
+    res = dilithium.leaked_data
+    dilithium.leaked_data = []
+    return res
 
 def parse_results(results):
     parsed = []
@@ -54,8 +56,7 @@ def try_append(m, i, j, lst, file, res, logger):
     (c_lst, z_lst, y_lst, s1_lst) = res
     logger.debug(f"Trying to append {j}: {y_lst[i][j]}.")
     if y_lst[i][j] == 0:
-        m += 1
-        line = f"{m}, {i}, {j}, {z_lst[i][j]}, {s1_lst[i][j]}"
+        line = f"{m + 1}, {i}, {j}, {z_lst[i][j]}, {s1_lst[i][j]}"
         for c in c_lst:
             line += f", {c}"
         line += f"\n"
@@ -64,9 +65,11 @@ def try_append(m, i, j, lst, file, res, logger):
         logger.info(f"Found {file} data at {j}")
         logger.info(line)
         lst.remove(j)
+        return 1
+    return 0
 
-def find_missing(file):
-    missing = list(range(256))
+def find_missing(file, needed):
+    missing = needed
     with open(file, "r") as csv_file:
         for line in csv_file.readlines()[1:]:
             try:
@@ -74,6 +77,15 @@ def find_missing(file):
             except ValueError:
                 pass
     return missing
+
+def find_index(file):
+    maxi = 0
+    with open(file, "r") as csv_file:
+        for line in csv_file.readlines()[1:]:
+            index = int(line.split(",")[0])
+            if index > maxi:
+                maxi = index
+    return maxi
 
 initialize_csv("data/missing.csv")
 initialize_csv("data/everything.csv")
@@ -97,10 +109,12 @@ def run(name: str):
         ]
         )
 
-    missing = [0, 83, 84, 106, 115, 121, 123, 127, 192, 240]
-    everything = find_missing("data/everything.csv")
+    missing = find_missing("data/missing.csv", [0, 83, 84, 106, 115, 121, 123, 192, 240])
+    everything = find_missing("data/everything.csv", list(range(256)))
 
-    m = 2500
+    max_index = find_index("data/everything.csv")
+
+    m = max_index + 1
     rounds = 1000
     total = len(missing) + len(everything)
     while missing != []:
@@ -111,9 +125,9 @@ def run(name: str):
         for res in par_res:
             i = 0
             for j in missing:
-                try_append(m, i, j, missing, "data/missing.csv", res, logger)
+                m += try_append(m, i, j, missing, "data/missing.csv", res, logger)
             for j in everything:
-                try_append(m, i, j, everything, "data/everything.csv", res, logger)
+                m += try_append(m, i, j, everything, "data/everything.csv", res, logger)
         found = total - (len(everything) + len(missing))
         logger.info(f"Found {found}/{total} datapoints")
     return total - (len(missing) + len(everything))
