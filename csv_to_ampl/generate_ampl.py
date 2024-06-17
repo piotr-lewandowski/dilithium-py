@@ -1,9 +1,7 @@
-
 from numpy.polynomial.polynomial import polyadd, polymul
 from amplpy import AMPL, ampl_notebook
 from csv_data import z, L, C, s1ij
-# https://amplpy.ampl.com/en/latest/?_gl=1*13rarp*_ga*NTY1NTY0OTM2LjE2OTcwNDg0MjI.*_ga_FY84K2YRRE*MTcxNDg5OTEyNy41LjEuMTcxNDg5OTkxMi4wLjAuMA..
-ampl = AMPL() # instantiate AMPL object
+ampl = AMPL()
 
 ampl.eval(
     """
@@ -39,5 +37,5 @@ ampl.getParameter('s1').setValues(s1ij)
 
 ampl.getParameter('C').setValues(C)
 # ampl.solve(solver="cplex")
-ampl.export_data("dil_i0_new_old.dat")
+ampl.export_data("dil.dat")
 ampl.export_model("dil.mod")

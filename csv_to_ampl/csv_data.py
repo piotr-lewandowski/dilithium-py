@@ -1,6 +1,6 @@
 import pandas as pd
 
-df = pd.read_csv("final.csv")
+df = pd.read_csv("../data/final_filtered.csv")
 df["c"] = (
     df
     .filter(regex=r"c\d+")
