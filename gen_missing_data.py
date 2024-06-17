@@ -34,7 +34,8 @@ def run_rounds(rounds, logger, random, dilithium):
     logger.info(f"{rounds} rounds completed in {end - start} s")
     return dilithium.leaked_data
 
-def parse_results(results) -> Results:
+def parse_results(results):
+    parsed = []
     for (c, z, y, s1) in results:
         c_lst = c.copy_from_ntt().from_montgomery().coeffs
         z_lst = []
@@ -46,58 +47,73 @@ def parse_results(results) -> Results:
             y_lst.append(el[0].coeffs)
         for el in s1:
             s1_lst.append(el[0].coeffs)
-    return Results(c_lst, z_lst, y_lst, s1_lst)
+        parsed.append((c_lst, z_lst, y_lst, s1_lst))
+    return parsed
 
 def try_append(m, i, j, lst, file, res, logger):
-    for j in lst:
-        if res.y_lst[i][j] == 0:
-            m += 1
-            line = f"{m}, {i}, {j}, {res.z_lst[i][j]}, {res.s1_lst[i][j]}"
-            for c in res.c_lst:
-                line += f", {c}"
-            line += f"\n"
-            with open(file, "a") as csv_file:
-                csv_file.writelines(line)
-            logger.info(f"Found {file} data at {j}")
-            logger.info(line)
-            lst.remove(j)
+    (c_lst, z_lst, y_lst, s1_lst) = res
+    logger.debug(f"Trying to append {j}: {y_lst[i][j]}.")
+    if y_lst[i][j] == 0:
+        m += 1
+        line = f"{m}, {i}, {j}, {z_lst[i][j]}, {s1_lst[i][j]}"
+        for c in c_lst:
+            line += f", {c}"
+        line += f"\n"
+        with open(file, "a") as csv_file:
+            csv_file.writelines(line)
+        logger.info(f"Found {file} data at {j}")
+        logger.info(line)
+        lst.remove(j)
+
+def find_missing(file):
+    missing = list(range(256))
+    with open(file, "r") as csv_file:
+        for line in csv_file.readlines()[1:]:
+            try:
+                missing.remove(int(line.split(",")[2]))
+            except ValueError:
+                pass
+    return missing
 
 initialize_csv("data/missing.csv")
 initialize_csv("data/everything.csv")
 
 def run(name: str):
-    random = Random(name)
+    seed = time().hex() + name
+    random = Random(seed)
     dilithium = Dilithium2
 
     logger = logging.getLogger(name)
+    handler = logging.FileHandler(f"logs/{name}.log")
+    handler.setLevel(logging.INFO)
+    handler.setFormatter(logging.Formatter(fmt='%(asctime)s [%(levelname)s] %(name)s %(message)s', datefmt = '%d/%m/%Y %H:%M:%S'))
+    logger.addHandler(handler)
     logging.basicConfig(
         level=logging.INFO, 
         format='%(asctime)s [%(levelname)s] %(name)s %(message)s',
         datefmt='%d/%m/%Y %H:%M:%S',
         handlers=[
-            logging.FileHandler(f"logs/{name}.log"),
             logging.StreamHandler(sys.stdout)
         ]
         )
 
-    missing = [0, 10, 32, 83, 84, 106, 115, 121, 123, 127, 139, 142, 148, 153, 192, 193, 240, 245]
-    everything = list(range(256))
+    missing = [0, 83, 84, 106, 115, 121, 123, 127, 192, 240]
+    everything = find_missing("data/everything.csv")
 
     m = 2500
     rounds = 1000
     total = len(missing) + len(everything)
     while missing != []:
         raw_res = run_rounds(rounds, logger, random, dilithium)
-        res = parse_results(raw_res)
-        zeros = res.y_lst.count(0)
-        logger.info(f"Found {zeros} zeros.")
-        # there are 4 polynomials, but we do the exact same thing for each of them
+        par_res = parse_results(raw_res)
+        # there are 5 polynomials, but we do the exact same thing for each of them
         # so we can restrict ourselves to the first one
-        i = 0
-        for j in missing:
-            try_append(m, i, j, missing, "data/missing.csv", res, logger)
-        for j in everything:
-            try_append(m, i, j, everything, "data/everything.csv", res, logger)
+        for res in par_res:
+            i = 0
+            for j in missing:
+                try_append(m, i, j, missing, "data/missing.csv", res, logger)
+            for j in everything:
+                try_append(m, i, j, everything, "data/everything.csv", res, logger)
         found = total - (len(everything) + len(missing))
         logger.info(f"Found {found}/{total} datapoints")
     return total - (len(missing) + len(everything))
