@@ -8,6 +8,6 @@ data non_ntt_filtered.dat;
 
 objective number_of_coeffs;
 solve;
-# display X > wynik_X.txt;
+# display x > wynik_x.txt;
 # display s > wynik_s.txt;
 display s;
