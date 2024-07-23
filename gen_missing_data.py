@@ -48,13 +48,12 @@ def parse_results(results):
         for el in y:
             y_lst.append(el[0].coeffs)
         for el in s1:
-            s1_lst.append(el[0].coeffs)
+            s1_lst.append(el[0].copy_from_ntt().from_montgomery().coeffs)
         parsed.append((c_lst, z_lst, y_lst, s1_lst))
     return parsed
 
 def try_append(m, i, j, lst, file, res, logger):
     (c_lst, z_lst, y_lst, s1_lst) = res
-    logger.debug(f"Trying to append {j}: {y_lst[i][j]}.")
     if y_lst[i][j] == 0:
         line = f"{m + 1}, {i}, {j}, {z_lst[i][j]}, {s1_lst[i][j]}"
         for c in c_lst:
@@ -63,7 +62,9 @@ def try_append(m, i, j, lst, file, res, logger):
         with open(file, "a") as csv_file:
             csv_file.writelines(line)
         logger.info(f"Found {file} data at {j}")
-        logger.info(line)
+        logger.debug(line)
+        logger.debug(f"z = {z_lst[i]}")
+        logger.debug(f"zj = {z_lst[i][j]}")
         lst.remove(j)
         return 1
     return 0
@@ -87,37 +88,42 @@ def find_index(file):
                 maxi = index
     return maxi
 
-initialize_csv("data/missing.csv")
-initialize_csv("data/everything.csv")
-
-def run(name: str):
-    seed = time().hex() + name
-    random = Random(seed)
-    dilithium = Dilithium2
-
+def setup_logging(name: str):
+    lvl = logging.INFO
     logger = logging.getLogger(name)
     handler = logging.FileHandler(f"logs/{name}.log")
-    handler.setLevel(logging.INFO)
+    handler.setLevel(lvl)
     handler.setFormatter(logging.Formatter(fmt='%(asctime)s [%(levelname)s] %(name)s %(message)s', datefmt = '%d/%m/%Y %H:%M:%S'))
     logger.addHandler(handler)
     logging.basicConfig(
-        level=logging.INFO, 
+        level=lvl, 
         format='%(asctime)s [%(levelname)s] %(name)s %(message)s',
         datefmt='%d/%m/%Y %H:%M:%S',
         handlers=[
             logging.StreamHandler(sys.stdout)
         ]
         )
+    return logger
 
-    missing = find_missing("data/missing.csv", [0, 83, 84, 123])
-    everything = find_missing("data/everything.csv", list(range(256)))
+def run(name: str):
+    seed = time().hex() + name
+    random = Random(seed)
+    dilithium = Dilithium2
+    logger = setup_logging(name)
+
+    initialize_csv("data/missing.csv")
+    initialize_csv("data/everything.csv")
+
+    missing = find_missing("data/missing.csv", [])
+    # everything = find_missing("data/everything.csv", list(range(256)))
+    everything = list(range(256))
 
     max_index = find_index("data/everything.csv")
 
     m = max_index + 1
     rounds = 1000
     total = len(missing) + len(everything)
-    while missing != []:
+    while everything != []:
         raw_res = run_rounds(rounds, logger, random, dilithium)
         par_res = parse_results(raw_res)
         # there are 5 polynomials, but we do the exact same thing for each of them
