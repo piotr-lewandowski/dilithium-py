@@ -1,5 +1,5 @@
 from numpy.polynomial.polynomial import polyadd, polymul
-from amplpy import AMPL, ampl_notebook
+from amplpy import AMPL
 from csv_data import z, L, C, s1ij
 ampl = AMPL()
 
@@ -31,11 +31,9 @@ subject to res_2 {(m,j) in L}:
 
 
 ampl.getSet('L').set_values(L)
-# ampl.getParameter('s').setValues(z)
 ampl.getParameter('z').setValues(z)
 ampl.getParameter('s1').setValues(s1ij)
 
 ampl.getParameter('C').setValues(C)
-# ampl.solve(solver="cplex")
 ampl.export_data("dil.dat")
 ampl.export_model("dil.mod")
