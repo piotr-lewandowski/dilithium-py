@@ -2,12 +2,12 @@ option display_precision 10;
 # option solver highs;
 option solver cbc;
 reset;
-model base_h.mod;
-# data non_ntt.dat;
-data non_ntt_filtered.dat;
+model "models/base.mod";
+data "data/base.dat";
+
+model "models/hints.mod";
+data "data/hints.dat";
 
 objective number_of_coeffs;
 solve;
-# display x > wynik_x.txt;
-# display s > wynik_s.txt;
 display s;

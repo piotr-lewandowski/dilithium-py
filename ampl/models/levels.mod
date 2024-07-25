@@ -10,41 +10,29 @@ param z{L} integer;
 param C{L, INDICES} integer;
 var s{INDICES}  integer;
 
-# with additional hints about some variables
-# hint that s[j] = s_hint[j] or s[j] = s_hint[j] + 1
-set HINTS within INDICES;
-param s_hint{HINTS} integer;
-# hint that s[j] = s_exact[j]
-set EXACT within INDICES;
-param s_exact{EXACT} integer;
-
 # auxiliary variables to model the equality as two inequalities
 var x{L}  binary;
 param K = 1e9;
 
 # additional relaxation parameters
-param max_relaxation = 91;
-var r{L} >= 0, <= max_relaxation;
+set LEVELS;
+param reward {LEVELS};
+param distance {LEVELS};
+var t {L, LEVELS} binary;
 
 # exact solution, useful for testing
 param s1{L} integer;
 
 # we're looking for the solution that satisfies the most equations
-maximize number_of_coeffs: sum {(m,j) in L} x[m,j] + r[m,j];
+maximize number_of_coeffs: sum {(m,j) in L} (x[m,j] + sum {l in LEVELS} t[m,j,l] * reward[l]);
 
 # polynomial multiplication written out as an explicit sum
 subject to equation_right {(m,j) in L}: 
   z[m,j] - sum {i in INDICES: i <= j} C[m,j,i]*s[j - i] 
          + sum {i in INDICES: i > j} C[m,j,i]*s[256 + j - i]
-              <= (1 - x[m,j]) * K + r[m,j];
+              <= (1 - x[m,j]) * K + sum {l in LEVELS} (1 - t[m,j,l]) * distance[l];
 
 subject to equation_left {(m,j) in L}: 
 z[m,j] - sum {i in INDICES: i <= j} C[m,j,i]*s[j - i] 
          + sum {i in INDICES: i > j} C[m,j,i]*s[256 + j - i]
-        >= - (1 - x[m,j]) * K - r[m,j];
-
-subject to exact_hint {j in EXACT}:
-  s[j] = s_exact[j];
-
-subject to approximate_hint {j in HINTS}:
-  s_hint[j] <= s[j] <= s_hint[j] + 1;
+        >= - (1 - x[m,j]) * K - sum {l in LEVELS} (1 - t[m,j,l]) * distance[l];

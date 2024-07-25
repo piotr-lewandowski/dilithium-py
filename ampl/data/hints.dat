@@ -1,0 +1,10 @@
+data;
+
+set HINTS := 49 235;
+param s_hint :=
+     49 -1
+     235 -2 ;
+
+set EXACT := 230;
+param s_exact :=
+     230 -1 ;

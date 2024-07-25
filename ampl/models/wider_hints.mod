@@ -43,4 +43,4 @@ subject to exact_hint {j in EXACT}:
   s[j] = s_exact[j];
 
 subject to approximate_hint {j in HINTS}:
-  s_hint[j] <= s[j] <= s_hint[j] + 1;
+  s_hint[j] - 1 <= s[j] <= s_hint[j] + 1;
