@@ -36,3 +36,9 @@ subject to equation_left {(m,j) in L}:
 z[m,j] - sum {i in INDICES: i <= j} C[m,j,i]*s[j - i] 
          + sum {i in INDICES: i > j} C[m,j,i]*s[256 + j - i]
         >= - (1 - x[m,j]) * K - sum {l in LEVELS} (1 - t[m,j,l]) * distance[l];
+
+data;
+
+set LEVELS := 1 2;
+param distance := 1 10 2 30;
+param reward := 1 0.3 2 0.1;

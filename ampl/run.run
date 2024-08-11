@@ -1,13 +1,18 @@
 option display_precision 10;
-# option solver highs;
-option solver cbc;
+# option solver scip;
+# option scip_options "tech:debug=1";
+# option scip_options "tech:outlev=1";
+option solver highs;
+option highs_options "mip:round=1";
+option highs_options "mip:round_reptol=1e-1";
 reset;
-model "models/base.mod";
-data "data/base.dat";
+model "ampl/models/mod.mod";
+data "ampl/data/dat.dat";
 
-model "models/hints.mod";
-data "data/hints.dat";
+# model "models/hints.mod";
+# data "data/hints.dat";
 
 objective number_of_coeffs;
 solve;
 display s;
+# display x;

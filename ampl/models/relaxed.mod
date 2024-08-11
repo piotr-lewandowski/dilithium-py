@@ -16,13 +16,14 @@ param K = 1e9;
 
 # additional relaxation parameters
 param max_relaxation = 91;
+param rel_coef = 0.01;
 var r{L} >= 0, <= max_relaxation;
 
 # exact solution, useful for testing
 param s1{L} integer;
 
 # we're looking for the solution that satisfies the most equations
-maximize number_of_coeffs: sum {(m,j) in L} x[m,j] + r[m,j];
+maximize number_of_coeffs: sum {(m,j) in L} (x[m,j] - rel_coef * r[m,j]);
 
 # polynomial multiplication written out as an explicit sum
 subject to equation_right {(m,j) in L}: 
