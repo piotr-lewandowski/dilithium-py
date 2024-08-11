@@ -2,9 +2,9 @@ from math import sqrt
 
 eta = 2
 tau = 39
-sigmasq = ((2 * eta) ** 2 - 1) / 12 * tau
 
-sigma2 = 2 * sqrt(sigmasq)
+sigma_squared = ((2 * eta) ** 2 - 1) / 12 * tau
+sigma_doubled = 2 * sqrt(sigma_squared)
 
 beta = tau * eta
 
@@ -12,7 +12,6 @@ beta = tau * eta
 # csij <= beta, so zij <= beta for zero y
 # discard zij > beta
 
-error_bound = beta + sigma2
-
 # 91.96424004376894
-print(error_bound)
+error_bound = beta + sigma_doubled
+error_int = int(error_bound)

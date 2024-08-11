@@ -1,8 +1,11 @@
+from sys import argv
 
-file = "data/everything.csv"
+dataset = argv[1]
+
+file = f"data/{dataset}.csv"
 
 new = []
-i = 2500
+i = 0
 header = ""
 
 with open(file, "r") as csv_file:
@@ -10,7 +13,10 @@ with open(file, "r") as csv_file:
     for line in csv_file.readlines():
         i += 1
         rest = line.split(",")[1:]
-        new.append(str(i) + "," + ",".join(rest))
+        j = int(line.split(",")[2])
+        new.append((j, str(i) + "," + ",".join(rest)))
+
+new = [x[1] for x in sorted(new, key=lambda x: x[0])]
 
 with open(file, "w") as csv_file:
     csv_file.writelines([header])
