@@ -29,7 +29,9 @@ def csv_to_ampl(file):
 
     x = list(zip(L,Z))
     S1ij = my_df["s1ij"].values.tolist()
-    x = list(zip(L,S1ij))
-    s1ij = {tuple(k): v for k, v in x}
+    j = my_df["j"]
+    x = list(zip(j,S1ij))
     
-    return z, L, C, s1ij
+    s1 = { k : v for k, v in x }
+    
+    return z, L, C, s1

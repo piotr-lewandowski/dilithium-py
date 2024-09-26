@@ -21,7 +21,9 @@ param distance {LEVELS};
 var t {L, LEVELS} binary;
 
 # exact solution, useful for testing
-param s1{L} integer;
+param s1{INDICES} integer;
+
+var distance = sum { i in INDICES } sqrt((s1[i] - s[i]) * (s1[i] - s[i]));
 
 # we're looking for the solution that satisfies the most equations
 maximize number_of_coeffs: sum {(m,j) in L} (x[m,j] + sum {l in LEVELS} t[m,j,l] * reward[l]);

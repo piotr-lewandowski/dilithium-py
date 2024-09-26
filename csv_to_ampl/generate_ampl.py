@@ -10,7 +10,7 @@ ampl.eval(
 set POLYNOMIAL_LENGTH = 0..255;
 set L dimen 2;
 param z {L};
-param s1 {L};
+param s1 {POLYNOMIAL_LENGTH};
 
 param C { L , POLYNOMIAL_LENGTH}; 
 param K = 1000000;
